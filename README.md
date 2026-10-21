@@ -1,58 +1,109 @@
-# Time Keeper
+# 🕒 TimeFinder
 
-Why and when use TimeFinder?
+A simple, standalone time-tracking tool to keep track of your work, your way.
 
-To anwer that, just consider that this tool :
-* Is standalone and local, so doesn't have any external dependency or call.
-* Wouldn't store or use, any sensible or personnal data. Only use of real Jira id will make sense.
-* Answer immediatly (no delay because of cloud response).
-* Use LocalStorage of your web browser, and offer to export / import complete data (settings + records), or only records.
-* Offer simple navigation, and a fluid workflow : 
-  > ajust task / category / subcategory selection if necessary
-  > click start and stay focus on your job.
-* Allow you to modify, or add manually a record if you miss something, or have to adjust.
-* Allow you a fast copy / paste of your time in Jira, and stay aligned on company strategy without effort.
-* Keep you real record, or what you want to see / justify, even if company ask you to omit what is "wrong for statistics"
-* Give opportunity of a small but free analytics view, based on your own category / subcategory
+## 🤔 Why TimeFinder?
 
-!Warning! : if you navigator remove cache + data, when closing it, or each day, you will have to save your data regularly, during your working day. In this case, use of this tool could be unconfortable...
+TimeFinder is designed to make time tracking simple, fast, and flexible.
 
+- 🔒 **Standalone and local** — No external dependencies, no network requests. Your data stays in your browser.
+- 🛡️ **Privacy first** — No personal data is collected or sent anywhere. The only external identifiers you may use are Jira task IDs.
+- ⚡ **Instant response** — No cloud requests, no waiting. Just start tracking and focus on your work.
+- 💾 **Your data, your choice** — Data is stored in your browser's LocalStorage. You can import or export your complete data (settings + records), or export and import records only.
+- 🧭 **Simple workflow** — Select your task, category, and subcategory if needed, click Start, and get back to work.
+- ✏️ **Flexible time tracking** — Add or modify records manually whenever you need to correct or complete your tracking.
+- 📋 **Jira-friendly reporting** — Quickly copy and paste your time records into Jira, keeping your reporting aligned with your company's workflow.
+- 📝 **Your own record of activity** — Keep a personal record of your work, independently of the information required by your official reporting tools.
+- 📊 **Personal analytics** — Get a simple overview of your activity based on your own categories and subcategories.
 
-## Quick start
+> ⚠️ **Important: Protect your data!**
+>
+> TimeFinder stores its data in your browser's LocalStorage. If your browser or your system automatically clears website data, your records may be lost.
+>
+> Export your data regularly, especially during your working day, if your browser is configured to clear its data automatically.
+>
+> If you cannot rely on persistent browser storage, using TimeFinder may become inconvenient.
 
-Before all, you can adjust your language, and theme, with features on the top menu.
-1. Ajust your settings, particularly Category / Subcategory.
-2. You can also use settings to enter task Id, but it also possible to do it automatically, with start a new record in tracking view
-3. In tracking tab, select task / category / subcategory, enter an optionnal description and click start. 
+## 🚀 Quick Start
 
-## Tracking view
+Before getting started, you can choose your preferred language and theme from the top menu.
 
-* Only session with duration more than 2 minutes will be kept.
-* After starting a task, you can stop it manually. But if you start a new session, the last one is saved and the new one is starting.
-* Formular keeps your last choice. Often, you will not have to change a lot, to launch record.
-* Category and subcategory will be concatenated to compose your report comment. So if it's enough accurate, you don't have to use description
-* The bottom of this view offer import / export features. It saves all you records, but only your records. To save all (settings + records), use feature in Settings view.
-* 
+1. **Configure your settings.** Start by defining your categories and subcategories to match the way you want to track your activity.
+2. **Set up your tasks.** You can enter Jira task IDs in Settings, or add them directly when starting a new record from the Tracking view.
+3. **Start tracking!** Open the Tracking view, select a task, category, and subcategory, optionally add a description, and click Start.
 
-## Agenda view
+That's it! Keep your workflow simple and focus on your work.
 
-* Give an overview of your activity by week
-* Allow to add of modify records 
+## ⏱️ Tracking View
 
-## Report View
+The Tracking view is where you spend most of your time.
 
-* Give you information to update your official activity reporting tool, with copy / paste the description
-* If your corporate tools give you opportunity you will probably be able to automatize that with copying report and formatting it as csv table
+- **Minimum duration:** Only sessions lasting more than 2 minutes are kept.
+- **Automatic session handling:** You can stop a session manually. Starting a new session automatically saves the previous one and starts the next.
+- **Remembered selections:** The form keeps your last choices, so starting a new session usually requires very little interaction.
+- **Automatic report comments:** Your category and subcategory are combined to create your report comment. If they describe your activity accurately enough, you don't need to add a separate description.
+- **Data management:** You can import or export your records directly from this view. These operations concern records only, not your settings.
 
-## Analytics View
+To back up everything, including your settings and records, use the import/export features in the Settings view.
 
-This view is basic, and will stay like that. The way to use it depends of your category / subcategory settings
-It could be usefull :
-* To detect waste with unefficient workflow or process
-* To show / justify why you suggesting improvement in your team or global organization
-* To detect your weekness. It stays your own, so don't be afraid by that. It should become your force, because for example, you will be able to choose the best training for you.
+## 📅 Agenda View
 
-## Settings View
+Get a weekly overview of your activity.
 
-Depending of your expectation, it will make this tool flexible and efficient, with using category and subcategory
-And don't forget, save your data regularly with using import / export feature
+- Review your recorded sessions throughout the week.
+- Add missing records or modify existing ones.
+
+This view helps you keep your time records accurate and complete.
+
+## 📋 Report View
+
+Prepare your time records for your official reporting tool.
+
+- Review the information needed for your activity report.
+- Copy and paste descriptions to simplify your reporting workflow.
+- Depending on the capabilities of your corporate tools, you may be able to automate part of the process by copying the report and formatting it as a CSV table.
+
+The goal is to reduce repetitive work and make reporting less tedious.
+
+## 📊 Analytics View
+
+This is intentionally a simple analytics view. Its usefulness depends largely on how you configure your categories and subcategories.
+
+It can help you:
+
+- 🔍 Identify wasted time caused by inefficient workflows or processes.
+- 💡 Support improvement proposals for your team or organization with a better understanding of your activity.
+- 🎯 Identify your own weaknesses and areas for improvement.
+- 📚 Choose relevant training opportunities and track your progress over time.
+
+Your personal analytics are a tool for self-improvement, not a performance score.
+
+Use them to understand your work, identify opportunities, and make better decisions.
+
+## ⚙️ Settings View
+
+Settings allow you to adapt TimeFinder to your own workflow.
+
+Configure your categories and subcategories to make tracking more flexible, meaningful, and efficient.
+
+You can also manage your task IDs and adjust your preferences.
+
+**And don't forget to back up your data regularly!**
+
+Use the import/export features to preserve your settings and records, especially if your browser may clear its stored data.
+
+## 💾 Data & Privacy
+
+TimeFinder is designed to work locally in your browser.
+
+- Your records and settings are stored in LocalStorage.
+- No external service is required for its normal operation.
+- Your data remains under your control, but it is your responsibility to back it up.
+
+Remember that clearing your browser's stored website data may permanently delete your TimeFinder records if you have not exported them.
+
+## 📜 License
+
+TimeFinder is distributed under the MIT License.
+
+See the [LICENSE](LICENSE) file for details.
