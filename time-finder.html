@@ -937,14 +937,14 @@ dialog::backdrop {
 }
     </style>
 
-    <title>TimeFinder v0.5</title>
+<title>TimeFinder v0.6</title>
 </head>
 
 <body>
 
     <header>
         <div class="bar">
-            <div class="title">⏱️ Time Finder</div>
+            <div class="title">⏱️ TimeFinder</div>
             <span class="pill" id="nowPill"></span>
             <div class="spacer"></div>
 
@@ -1341,10 +1341,12 @@ dialog::backdrop {
 /* ============================================================
    TIMEFINDER V0.4 - GLOBAL & I18N
    ============================================================ */
-//const STORAGE_KEY = 'trackTimeState.v0.4';
-//const OLD_STORAGE_KEYS = ['timeFinderState.v0.3', 'timeTrackerState.v2', 'timeTrackerState.v1'];   
-const STORAGE_KEY = 'timeFinderState.v0.5';
-const OLD_STORAGE_KEYS = ['timeFinderState.v0.4', 'timeFinderState.v0.3', 'trackTimeState.v0.4', 'timeTrackerState.v2', 'timeTrackerState.v1'];
+const productId = "timeFinder";
+const version = "0.6"; 
+const STORAGE_KEY = `${productId}State.v${version}`;
+const BREAKING_CHANGE_V06_KEYS = ['timeFinderState.v0.5', 'timeFinderState.v0.4', 'timeFinderState.v0.3',
+                                  'trackTimeState.v0.4', 'timeTrackerState.v2', 'timeTrackerState.v1'];
+const OLD_STORAGE_KEYS = [...BREAKING_CHANGE_V06_KEYS];
 const MIN_SESSION_DURATION_MS = 2 * 60 * 1000;
 
 const offsetHours = -new Date().getTimezoneOffset() / 60;
@@ -1594,6 +1596,7 @@ translations.en = {
     "modal.categoryName": "Name",
     "modal.start": "Start",
     "modal.end": "End",
+    "modal.editSessionDenied": "Session in progress or not valid",
     "modal.detailsPlaceholder": "Details…",
     "modal.editSession": "Edit session",
     "modal.addSession": "Add work log",
@@ -1752,6 +1755,7 @@ translations.fr = {
     "modal.ticketDescPlaceholder": "Description du ticket",
     "modal.addCategoryTitle": "Ajouter une catégorie",
     "modal.categoryName": "Nom",
+    "modal.editSessionDenied": "Session en cours ou non valide",
     "modal.start": "Début",
     "modal.end": "Fin",
     "modal.detailsPlaceholder": "Détails…",
@@ -1901,6 +1905,14 @@ translations.de = {
     "files.importFailed": "Fehler beim Lesen der Datei: {}",
     "agenda.askDeleteSession": "Diese Sitzung dauerhaft löschen?",
     "agenda.invalidRange": "Die Endzeit muss nach der Startzeit liegen.",
+    "developer.title": "Unitary tests suite",
+    "developer.description": "Execute and check that all utils and business methods runs well.",
+    "developer.launch": "Launch tests",
+    "developer.passed": "Passed",
+    "developer.pending": "Pending",
+    "developer.success": "Success",
+    "developer.failure": "Failure",
+    "developer.error": "Error",
     "modal.resumeTitle": "Aktivität fortsetzen",
     "modal.resumeNo": "Vergangene Zeit verwerfen",
     "modal.resumeYes": "Vergangene Zeit einbeziehen",
@@ -1908,6 +1920,7 @@ translations.de = {
     "modal.timeElapse": "Zuletzt gesehen: {}<br>Verstrichene Zeit: {}",
     "modal.addTaskTitle": "Aufgabe-Ticket hinzufügen",
     "modal.taskCode": "Aufgabe-Code",
+    "modal.editSessionDenied": "Sitzung läuft oder ist ungültig",
     "modal.ticketDescPlaceholder": "Zusammenfassung des Tickets",
     "modal.addCategoryTitle": "Kategorie hinzufügen",
     "modal.categoryName": "Nam"
@@ -2063,6 +2076,7 @@ translations.es = {
     "modal.ticketDescPlaceholder": "Resumen de la incidencia",
     "modal.addCategoryTitle": "Añadir categoría",
     "modal.categoryName": "Nombre",
+    "modal.editSessionDenied": "Sesión en curso o no válida",
     "modal.start": "Inicio",
     "modal.end": "Fin",
     "modal.detailsPlaceholder": "Detalles…",
@@ -2223,6 +2237,7 @@ translations.pt = {
     "modal.addCategoryTitle": "Adicionar categoria",
     "modal.categoryName": "Nome",
     "modal.start": "Início",
+    "modal.editSessionDenied": "Sessão em curso ou inválida",
     "modal.end": "Fim",
     "modal.detailsPlaceholder": "Detalhes…",
     "modal.editSession": "Editar sessão",
@@ -2230,7 +2245,6 @@ translations.pt = {
     "opt.none": "— nenhum —",
     "opt.choose": "— selecionar —"
 };
-
 /* ============================================================
    TRANSLATIONS
    ============================================================ */
@@ -2375,7 +2389,22 @@ function validateTaskCode(value, checkDouble = false) {
         return { valid: false, error: t('common.doubleTaskCode') };
     }
 
-    return {valid: true, value: code};
+    return { valid: true, value: code };
+}
+
+function alignTaskCode(taskCode) {
+    if (!taskCode) return;
+    return normalizeTaskCode(taskCode).replace(/[ ,;:\/]/gm, "_");
+}
+
+function checkBreakingChangeV06(isSaved = false) {
+    if (state.productId && state.version && `${state.productId}${state.version}` === `${productId}${version}`) return;
+    state.tasks.forEach((t) => {
+        t.code = alignTaskCode(t.code);
+    });
+    state.productId = productId;
+    state.version = version;
+    if (isSaved) saveState();
 }
 
 function taskExistsOrCreate(code) {
@@ -2385,7 +2414,7 @@ function taskExistsOrCreate(code) {
         return;
     }
     let task = state.tasks.find(t => t.code === normalizedCode.value);
-    if (normalizedCode.value && !task) {        
+    if (normalizedCode.value && !task) {
         task = { id: uid('T'), code: normalizedCode.value, description: code };
         state.tasks.push(task);
     }
@@ -2471,7 +2500,8 @@ function defaultCategories() {
 
 function defaultState() {
     return {
-        version: 0.5,
+        productId: productId,
+        version: version,
         tasks: [],
         categories: defaultCategories(),
         sessions: [],
@@ -2497,19 +2527,27 @@ function defaultState() {
 function loadState() {
     try {
         let raw = localStorage.getItem(STORAGE_KEY);
+        let oldKey = "";
         if (!raw) {
-            for (const oldKey of OLD_STORAGE_KEYS) {
-                const oldData = localStorage.getItem(oldKey);
+            console.log("Get old storage key");
+            for (let o = 0; o < OLD_STORAGE_KEYS.length; o ++) {
+                console.log("Check old key: " + OLD_STORAGE_KEYS[o]);
+                const oldData = localStorage.getItem(OLD_STORAGE_KEYS[o]);
                 if (oldData) {
                     raw = oldData;
+                    raw.storageId = OLD_STORAGE_KEYS[o];
+                    oldKey = OLD_STORAGE_KEYS[o];
                     break;
                 }
             }
         }
 
         if (!raw) return defaultState();
+        
         const data = JSON.parse(raw);
         data.ui.locales = navigator.language;
+        data.productId = data.productId||"";
+        data.version = data.version||"";
         const base = defaultState();
         return {
             ...base,
@@ -2529,8 +2567,6 @@ function loadState() {
 function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
-
-
 
 
 state = loadState();
@@ -3026,7 +3062,9 @@ document.getElementById('importSessionsInput').addEventListener('change', event 
                 }
             });
 
+            checkBreakingChangeV06();
             saveState();
+
             renderAll();
             alert(t('files.importSuccess'));
         } catch (error) {
@@ -3267,7 +3305,7 @@ function openSessionModal(sessionId = null, defaultStart = null, defaultEnd = nu
         const session = state.sessions.find(s => s.id === sessionId);
         currentSession = runningSession();
 
-        if (!session || currentSession.id === sessionId) {
+        if (!session || (currentSession && currentSession.id === sessionId)) {
             alert(t('modal.editSessionDenied'));
             return;
         }
@@ -3974,11 +4012,25 @@ document.getElementById('importJsonInput').addEventListener('change', event => {
             if (!imported || typeof imported !== 'object' || !Array.isArray(imported.tasks) || !Array.isArray(imported.sessions) || !Array.isArray(imported.categories)) {
                 alert(t('files.errJsonFile'));
             }
-            if (!confirm(t('files.askFileImport'))) return;
+            if (!confirm(t('files.askFileImport'))) return;        
 
-            state = { ...defaultState(), ...imported, ui: { ...defaultState().ui, ...(imported.ui || {}) } };
-            saveState(); renderAll(); alert(t('files.importSuccess'));
-        } catch (error) { alert(ti('files.errJsonParse', error.message)); }
+            state = { 
+                ...defaultState(), 
+                ...imported, 
+                ui: { 
+                    ...defaultState().ui, 
+                    ...(imported.ui || {}) 
+                } 
+            };
+
+            checkBreakingChangeV06();
+            saveState();
+
+            renderAll(); 
+            alert(t('files.importSuccess'));
+        } catch (error) { 
+            alert(ti('files.errJsonParse', error.message)); 
+        }
     };
     reader.readAsText(file);
     event.target.value = '';
@@ -4356,6 +4408,8 @@ function start() {
         );
         saveState();
     }
+    
+    checkBreakingChangeV06(true);
 
     renderAll();
 
