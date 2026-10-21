@@ -100,7 +100,9 @@ TimeFinder is designed to work locally in your browser.
 - No external service is required for its normal operation.
 - Your data remains under your control, but it is your responsibility to back it up.
 
-Remember that clearing your browser's stored website data may permanently delete your TimeFinder records if you have not exported them.
+Remember that clearing your browser's stored website data may permanently delete your TimeFinder records if you have not exported them.  
+
+And if you want to check it before downloading it,... Let's go : [TimeFinder](https://hervep530.github.io/time-finder/)
 
 ## 📜 License
 
