@@ -6,15 +6,15 @@ A simple, standalone time-tracking tool to keep track of your work, your way.
 
 TimeFinder is designed to make time tracking simple, fast, and flexible.
 
-- 🔒 **Standalone and local** — No external dependencies, no network requests. Your data stays in your browser.
-- 🛡️ **Privacy first** — No personal data is collected or sent anywhere. The only external identifiers you may use are Jira task IDs.
-- ⚡ **Instant response** — No cloud requests, no waiting. Just start tracking and focus on your work.
-- 💾 **Your data, your choice** — Data is stored in your browser's LocalStorage. You can import or export your complete data (settings + records), or export and import records only.
-- 🧭 **Simple workflow** — Select your task, category, and subcategory if needed, click Start, and get back to work.
-- ✏️ **Flexible time tracking** — Add or modify records manually whenever you need to correct or complete your tracking.
-- 📋 **Jira-friendly reporting** — Quickly copy and paste your time records into Jira, keeping your reporting aligned with your company's workflow.
-- 📝 **Your own record of activity** — Keep a personal record of your work, independently of the information required by your official reporting tools.
-- 📊 **Personal analytics** — Get a simple overview of your activity based on your own categories and subcategories.
+- **Standalone and local** — No external dependencies, no network requests. Your data stays in your browser.
+- **Privacy first** — No personal data is collected or sent anywhere. The only external identifiers you may use are Jira task IDs.
+- **Instant response** — No cloud requests, no waiting. Just start tracking and focus on your work.
+- **Your data, your choice** — Data is stored in your browser's LocalStorage. You can import or export your complete data (settings + records), or export and import records only.
+- **Simple workflow** — Select your task, category, and subcategory if needed, click Start, and get back to work.
+- **Flexible time tracking** — Add or modify records manually whenever you need to correct or complete your tracking.
+- **Jira-friendly reporting** — Quickly copy and paste your time records into Jira, keeping your reporting aligned with your company's workflow.
+- **Your own record of activity** — Keep a personal record of your work, independently of the information required by your official reporting tools.
+- **Personal analytics** — Get a simple overview of your activity based on your own categories and subcategories.
 
 > ⚠️ **Important: Protect your data!**
 >
@@ -102,7 +102,7 @@ TimeFinder is designed to work locally in your browser.
 
 Remember that clearing your browser's stored website data may permanently delete your TimeFinder records if you have not exported them.  
 
-And if you want to check it before downloading it,... Let's go : [TimeFinder](https://hervep530.github.io/time-finder/)
+And if you want to check it before downloading it,... Let's go : [TimeFinder Demo](https://hervep530.github.io/time-finder/)
 
 ## 📜 License
 

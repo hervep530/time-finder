@@ -244,7 +244,8 @@ main {
     padding: 0 12px;
 }
 
-section.card {
+section.card,
+section.archive-list {
     background: var(--bg-elev);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -526,9 +527,18 @@ label {
     color: var(--accent);
 }
 
+.suggestion-code.archived {
+    font-style: italic;
+    color: var(--muted);
+}
+
 .suggestion-desc {
     color: var(--muted);
     margin-left: 8px;
+}
+
+.suggestion-desc.archived {
+    font-style: italic;
 }
 
 /* Agenda / Week tab */
@@ -626,6 +636,14 @@ label {
     flex-direction: column;
     cursor: pointer;
     z-index: 2;
+}
+
+.archive-control .block {
+    position: relative;
+    left: auto;
+    right: auto;
+    border: none;
+    box-shadow: none;
 }
 
 .block .label {
@@ -761,7 +779,8 @@ label {
     margin-bottom: 14px;
 }
 
-.settings-header {
+.settings-header,
+.archive-control {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -966,9 +985,9 @@ dialog::backdrop {
             <select id="langSelect" class="lang-select">
                 <option value="en">EN</option>
                 <option value="de">DE</option>
+                <option value="es">ES</option>
                 <option value="fr">FR</option>
                 <option value="pt">PT</option>
-                <option value="es">ES</option>
             </select>
 
             <div class="inputBox themeBox ctrl">
@@ -1192,6 +1211,37 @@ dialog::backdrop {
                 <div id="taskList"></div>
             </div>
 
+            <details
+                style="background: var(--bg-elev-2); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px;">
+                <summary style="cursor: pointer; font-weight: 600; color: var(--muted); user-select: none;"
+                    data-i18n="settings.archivedTasks">
+                    🗳️ Task archived
+                </summary>
+                <section class="archive-list">
+                    <div class="archive-control">
+                        <div class="spacer"></div>
+                        <div class="block">
+                            <label for="suggestionLevel" class="hint" data-i18n="settings.suggestionLevel">Suggestion:</label>
+                            <div class="block-tooltip">
+                                <div class="tooltip-title" data-i18n="settings.suggestionTooltipTitle">Archive as suggestions</div>
+                                <div class="tooltip-line" data-i18n="settings.suggestionTooltip">Defines cases when archived tasks will be displayed in suggestions</div>
+                            </div>
+                        </div>
+                        <select id="suggestionLevel">
+                            <option value="0" data-i18n="settings.neverSuggested">Never</option>
+                            <option value="1" data-i18n="settings.suggestedWhenEdit">Edit</option>
+                            <option value="2" data-i18n="settings.suggestedWhenCreate">Create</option>
+                            <option value="3" data-i18n="settings.alwaysSuggested">Always</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="hint" data-i18n="settings.taskArchiveHint">List of tickets you are not working on anymore.</div>
+                    </div>
+                    <div id="taskArchiveList"></div>
+                </section>
+
+            </details>
+
             <div class="sep"></div>
 
             <div class="settings-section">
@@ -1349,6 +1399,8 @@ dialog::backdrop {
 /* ============================================================
    TIMEFINDER V0.4 - GLOBAL & I18N
    ============================================================ */
+//const STORAGE_KEY = 'trackTimeState.v0.4';
+//const OLD_STORAGE_KEYS = ['timeFinderState.v0.3', 'timeTrackerState.v2', 'timeTrackerState.v1'];  
 const productId = "timeFinder";
 const version = "0.6"; 
 const STORAGE_KEY = `${productId}State.v${version}`;
@@ -1366,6 +1418,7 @@ const developer = { testSuite: [] };
 let state = {};
 let statusMessageTimeout = null;
 let entryTaskId = null;
+let [archivedTasks, activeTasks] = [[], []];
 
 /* ============================================================
    NAVIGATION, THEME & I18N EVENTS
@@ -1429,7 +1482,9 @@ const analyticsCategorySelect = document.getElementById('analyticsCategorySelect
 /* ============================================================
    SETTINGS: JIRA & CATEGORIES MANAGEMENT
    ============================================================ */
-const taskList = document.getElementById('taskList');
+const suggestionLevelSelect = document.getElementById('suggestionLevel');
+const taskListDiv = document.getElementById('taskList');
+const taskarchiveListDiv = document.getElementById('taskArchiveList');
 const taskDialog = document.getElementById('taskDialog');
 const newTaskCode = document.getElementById('newTaskCode');
 const newTaskDescription = document.getElementById('newTaskDescription');
@@ -1451,6 +1506,44 @@ const resumeDialog = document.getElementById('resumeDialog');
 const resumeBody = document.getElementById('resumeBody');
 const resumeYes = document.getElementById('resumeYes');
 const resumeNo = document.getElementById('resumeNo');
+
+/*
+filter(t => archived ? t.archived : !t.archived)
+"btn.archive": "Archiver",
+"btn.restore": "Restaurer",
+
+
+
+"btn.archive": "Archivieren",
+"btn.restore": "Wiederherstellen",
+
+
+
+"btn.archive": "Archivar",
+"btn.restore": "Restaurar",
+
+
+
+"btn.archive": "Arquivar",
+"btn.restore": "Restaurar",
+
+
+"settings.taskArchiveHint": "List of tickets you are not working on anymore.",
+"settings.archivedTasks": "Archived tasks",
+
+"settings.taskArchiveHint": "Liste des tickets sur lesquels vous ne travaillez plus.",
+"settings.archivedTasks": "Tâches archivées",
+
+"settings.taskArchiveHint": "Liste der Tickets, an denen du nicht mehr arbeitest.",
+"settings.archivedTasks": "Archivierte Aufgaben",
+
+"settings.taskArchiveHint": "Lista de tickets en los que ya no estás trabajando.",
+"settings.archivedTasks": "Tareas archivadas",
+
+"settings.taskArchiveHint": "Lista de chamadas em que já não está a trabalhar.",
+"settings.archivedTasks": "Chamados arquivados",
+*/
+
 
 translations.en = {
     "theme.default": "Default",
@@ -1499,6 +1592,8 @@ translations.en = {
     "btn.copy": "Copy",
     "btn.copied": "Copied!",
     "btn.duplicate": "Duplicate",
+    "btn.archive": "Archive",
+    "btn.restore": "Restore",
     "btn.rename": "Rename",
     "common.newName": "New name:",
     "common.task": "Task",
@@ -1561,6 +1656,8 @@ translations.en = {
     "settings.doubleSubcategory": "Subcategory already exists.",
     "settings.taskTitle": "Tasks",
     "settings.taskHint": "Shortlist of tickets you are actively working on.",
+    "settings.taskArchiveHint": "List of tickets you are not working on anymore.",
+    "settings.archivedTasks": "Archived tasks",    
     "settings.noIssue": "No Task configured.",
     "settings.categoriesTitle": "Categories & Subcategories",
     "settings.categoriesHint": "Categories are used in summaries. Subcategories add deeper detail.",
@@ -1572,6 +1669,13 @@ translations.en = {
     "settings.importJson": "📥 Import JSON",
     "settings.exportCsv": "📊 Export CSV",
     "settings.resetAll": "Reset all data",
+    "settings.suggestionLevel": "Suggestion:",
+    "settings.suggestionTooltipTitle": "Archive as suggestions",
+    "settings.suggestionTooltip": "Defines cases when archived tasks will be displayed in suggestions",
+    "settings.neverSuggested": "Never",
+    "settings.suggestedWhenEdit": "Edit",
+    "settings.suggestedWhenCreate": "Create",
+    "settings.alwaysSuggested": "Always",
     "files.errJsonFile": "Invalid JSON file.",
     "files.errJsonParse": "JSON parsing error: {}",
     "files.askFileImport": "Import this file and overwrite local data?",
@@ -1660,6 +1764,8 @@ translations.fr = {
     "btn.copy": "Copier",
     "btn.copied": "Copié !",
     "btn.duplicate": "Dupliquer",
+    "btn.archive": "Archiver",
+    "btn.restore": "Restaurer",
     "btn.rename": "Renommer",
     "common.newName": "Nouveau nom :",
     "common.task": "Tâche",
@@ -1722,6 +1828,8 @@ translations.fr = {
     "settings.doubleSubcategory": "Cette sous-catégorie existe déjà.",
     "settings.taskTitle": "Tache",
     "settings.taskHint": "Liste volontairement réduite aux tickets sur lesquels vous travaillez.",
+    "settings.taskArchiveHint": "Liste des tickets sur lesquels vous ne travaillez plus.",
+    "settings.archivedTasks": "Tâches archivées",
     "settings.categoriesTitle": "Catégories et sous-catégories",
     "settings.categoriesHint": "Les catégories servent aux synthèses. Les sous-catégories permettent d'aller plus loin.",
     "settings.noIssue": "Aucune tache n'est configurée.",
@@ -1733,6 +1841,13 @@ translations.fr = {
     "settings.importJson": "📥 Importer JSON",
     "settings.exportCsv": "📊 Exporter CSV",
     "settings.resetAll": "Réinitialiser tout",
+    "settings.suggestionLevel": "Suggestion :",
+    "settings.suggestionTooltipTitle": "Archiver en tant que suggestions",
+    "settings.suggestionTooltip": "Définit les situations dans lesquelles les tâches archivées s'affichent parmi les suggestions",
+    "settings.neverSuggested": "Jamais",
+    "settings.suggestedWhenEdit": "Edition",
+    "settings.suggestedWhenCreate": "Creation",
+    "settings.alwaysSuggested": "Toujours",    
     "files.errJsonFile": "Fichier JSON invalide.",
     "files.errJsonParse": "Erreur d'analyse JSON : {}",
     "files.askFileImport": "Importer ce fichier et écraser les données locales ?",
@@ -1820,6 +1935,8 @@ translations.de = {
     "btn.copy": "Kopieren",
     "btn.copied": "Kopiert!",
     "btn.duplicate": "Duplizieren",
+    "btn.archive": "Archivieren",
+    "btn.restore": "Wiederherstellen",
     "btn.rename": "Umbenennen",
     "common.newName": "Neuer Name:",
     "common.task": "Aufgabe",
@@ -1880,6 +1997,8 @@ translations.de = {
     "settings.colorPicker": "Farbauswahl",
     "settings.dataTitle": "Datenverwaltung",
     "settings.dataHint": "JSON dient als vollständige Sicherung des Anwendungsstatus.",
+    "settings.taskArchiveHint": "Liste der Tickets, an denen du nicht mehr arbeitest.",
+    "settings.archivedTasks": "Archivierte Aufgaben",
     "settings.exportJson": "📤 JSON exportieren",
     "settings.importJson": "📥 JSON importieren",
     "settings.exportCsv": "📊 CSV exportieren",
@@ -1893,6 +2012,13 @@ translations.de = {
     "settings.newSubcategory": "Neue Unterkategorie",
     "settings.noSubcategory": "Keine Unterkategorie konfiguriert.",
     "settings.doubleSubcategory": "Diese Unterkategorie existiert bereits.",
+    "settings.suggestionLevel": "Vorschlag:",
+    "settings.suggestionTooltipTitle": "Als Vorschläge archivieren",
+    "settings.suggestionTooltip": "Legt fest, wann archivierte Aufgaben als Vorschläge angezeigt werden",
+    "settings.neverSuggested": "Nie",
+    "settings.suggestedWhenEdit": "Beim Bearbeiten",
+    "settings.suggestedWhenCreate": "Beim Erstellen",
+    "settings.alwaysSuggested": "Immer",    
     "developer.title": "Suite für Unit-Tests",
     "developer.description": "Führen Sie die Tests aus und überprüfen Sie, dass alle Dienstprogramme und Geschäftslogik-Methoden ordnungsgemäß funktionieren.",
     "developer.launch": "Tests starten",
@@ -1981,6 +2107,8 @@ translations.es = {
     "btn.copy": "Copiar",
     "btn.copied": "¡Copiado!",
     "btn.duplicate": "Duplicar",
+    "btn.archive": "Archivar",
+    "btn.restore": "Restaurar",
     "btn.rename": "Renombrar",
     "common.newName": "Nuevo nombre:",
     "common.task": "Tarea",
@@ -2034,6 +2162,8 @@ translations.es = {
     "analytics.noTask": "Sin Tarea",
     "settings.taskTitle": "Tarea",
     "settings.taskHint": "Lista de tickets en los que estás trabajando actualmente.",
+    "settings.taskArchiveHint": "Lista de tickets en los que ya no estás trabajando.",
+    "settings.archivedTasks": "Tareas archivadas",
     "settings.categoriesTitle": "Categorías y subcategorías",
     "settings.categoriesHint": "Las categorías se utilizan en los resúmenes. Las subcategorías aportan más detalle.",
     "settings.noIssue": "No hay ninguna tarea configurada.",
@@ -2054,6 +2184,13 @@ translations.es = {
     "settings.newSubcategory": "Nueva subcategoría",
     "settings.noSubcategory": "No hay ninguna subcategoría configurada.",
     "settings.doubleSubcategory": "Esta subcategoría ya existe.",
+    "settings.suggestionLevel": "Sugerencia:",
+    "settings.suggestionTooltipTitle": "Archivar como sugerencias",
+    "settings.suggestionTooltip": "Define cuándo se mostrarán las tareas archivadas en las sugerencias",
+    "settings.neverSuggested": "Nunca",
+    "settings.suggestedWhenEdit": "Al editar",
+    "settings.suggestedWhenCreate": "Al crear",
+    "settings.alwaysSuggested": "Siempre",    
     "files.errJsonFile": "Archivo JSON no válido.",
     "files.errJsonParse": "Error al analizar el JSON: {}",
     "files.askFileImport": "Importar este archivo y sobrescribir los datos locales?",
@@ -2141,6 +2278,8 @@ translations.pt = {
     "btn.copy": "Copiar",
     "btn.copied": "Copiado!",
     "btn.duplicate": "Duplicar",
+    "btn.archive": "Arquivar",
+    "btn.restore": "Restaurar",
     "btn.rename": "Renomear",
     "common.newName": "Novo nome:",
     "common.task": "Tarefa",
@@ -2194,6 +2333,8 @@ translations.pt = {
     "analytics.noTask": "Sem Tarefa",
     "settings.taskTitle": "Tarefa",
     "settings.taskHint": "Lista de tickets em que está atualmente a trabalhar.",
+    "settings.taskArchiveHint": "Lista de chamadas em que já não está a trabalhar.",
+    "settings.archivedTasks": "Chamados arquivados",    
     "settings.noIssue": "Nenhuma tarefa configurada.",
     "settings.categoriesTitle": "Categorias e subcategorias",
     "settings.categoriesHint": "As categorias são utilizadas nos resumos. As subcategorias acrescentam mais detalhe.",
@@ -2214,6 +2355,13 @@ translations.pt = {
     "settings.newSubcategory": "Nova subcategoria",
     "settings.noSubcategory": "Nenhuma subcategoria configurada.",
     "settings.doubleSubcategory": "Esta subcategoria já existe.",
+    "settings.suggestionLevel": "Sugestão:",
+    "settings.suggestionTooltipTitle": "Arquivar como sugestões",
+    "settings.suggestionTooltip": "Define em que situações as tarefas arquivadas serão apresentadas como sugestões",
+    "settings.neverSuggested": "Nunca",
+    "settings.suggestedWhenEdit": "Ao editar",
+    "settings.suggestedWhenCreate": "Ao criar",
+    "settings.alwaysSuggested": "Sempre",
     "files.errJsonFile": "Ficheiro JSON inválido.",
     "files.errJsonParse": "Erro ao analisar o JSON: {}",
     "files.askFileImport": "Importar este ficheiro e substituir os dados locais?",
@@ -2363,19 +2511,54 @@ function endOfWeek(date) {
    TASK, CATEGORY, SUBCATEGORY
    ============================================================ */
 
-function taskById(id) { return state.tasks.find(t => t.id === id) || null; }
+function partitionTaskList(list, predicate) {
+    return list.reduce(
+        ([trueList, falseList], element) => {
+            (predicate(element) ? trueList : falseList).push(element);
+            return [trueList, falseList];
+        },
+        [[], []]
+    );
+}
+
+function taskById(id, active = true) {
+    if (active) {
+        return state.tasks.find(t => !t.archived && t.id === id) || null; 
+    } else {
+        return state.tasks.find(t => t.id === id) || null; 
+    }
+}
 function categoryById(id) { return state.categories.find(c => c.id === id) || null; }
 function subcategoryById(catId, subId) {
     const cat = categoryById(catId);
     return cat ? cat.subcategories.find(s => s.id === subId) || null : null;
 }
 
-function filteredTasks(query) {
+function filteredTasks(query, active = true) {
+    // Set query and task list
     const q = query.trim().toUpperCase();
-    if (!q) return state.tasks.slice(0, 12);
-    return state.tasks.filter(task =>
+    const unfilteredTaskList = active ? activeTasks : state.tasks;
+    // Default task list
+    if (!q) return unfilteredTaskList.slice(0, 12);
+    // Return filtered task list
+    return unfilteredTaskList.filter(task =>
         task.code.toUpperCase().includes(q) || (task.description || '').toUpperCase().includes(q)
     ).slice(0, 12);
+}
+
+function embedsArchivedSuggestion(action = "none") {
+    result = false;
+    switch (action) {
+        case "edit":
+            if (state.ui.archiveSuggestionLevel > 0) result = true;
+            break;
+        case "create":
+            if (state.ui.archiveSuggestionLevel > 1) result = true;
+            break;
+        default:
+            if (state.ui.archiveSuggestionLevel > 2) result = true;
+    }
+    return result;
 }
 
 function normalizeTaskCode(value) {
@@ -2406,11 +2589,11 @@ function alignTaskCode(taskCode) {
 }
 
 function checkBreakingChangeV06(isSaved = false) {
-    if (state.productId && state.version && `${state.productId}${state.version}` === `${productId}${version}`) return;
+    if (state.product && state.version && `${state.product}${state.version}` === `${productId}${version}`) return;
     state.tasks.forEach((t) => {
         t.code = alignTaskCode(t.code);
     });
-    state.productId = productId;
+    state.product = productId;
     state.version = version;
     if (isSaved) saveState();
 }
@@ -2554,8 +2737,8 @@ function loadState() {
         
         const data = JSON.parse(raw);
         data.ui.locales = navigator.language;
-        data.productId = data.productId||"";
-        data.version = data.version||"";
+        data.productId = data.productId || "";
+        data.version = data.version || "";
         const base = defaultState();
         return {
             ...base,
@@ -2578,6 +2761,7 @@ function saveState() {
 
 
 state = loadState();
+[activeTasks, archivedTasks] = partitionTaskList(state.tasks, t => t.archived || false);
 /* ============================================================
    NAVIGATION, THEME & I18N EVENTS
    ============================================================ */
@@ -2641,8 +2825,8 @@ setInterval(() => {
    HANDLE TASK IN FORMULAR - use following arguments
    ============================================================ */
 
-function renderSuggestions(taskElement, suggestionsElement) {
-    const matches = filteredTasks(taskElement.value);
+function renderSuggestions(taskElement, suggestionsElement, active = true) {
+    const matches = filteredTasks(taskElement.value, active);
     suggestionsElement.innerHTML = '';
     if (!matches.length) {
         suggestionsElement.hidden = true;
@@ -2650,9 +2834,10 @@ function renderSuggestions(taskElement, suggestionsElement) {
     }
 
     matches.forEach(task => {
+        const classArchived = task.archived ? " archived" : "";
         const div = document.createElement('div');
         div.className = 'suggestion';
-        div.innerHTML = `<span class="suggestion-code">${escapeHtml(task.code)}</span><span class="suggestion-desc">${escapeHtml(task.description || '')}</span>`;
+        div.innerHTML = `<span class="suggestion-code${classArchived}">${escapeHtml(task.code)}</span><span class="suggestion-desc${classArchived}">${escapeHtml(task.description || '')}</span>`;
         div.addEventListener('mousedown', event => { event.preventDefault(); selectTask(task, taskElement, suggestionsElement); });
         suggestionsElement.appendChild(div);
     });
@@ -2714,15 +2899,15 @@ function addTaskInputEvents() {
     console.log('Add task input events.');
 }
 
-function enableTaskEvents(elementTask, elementTaskDescription, elementCategory, elementSubcategory, elementSuggestions) {
+function enableTaskEvents(elementTask, elementSuggestions, elementTaskDescription, elementCategory, elementSubcategory, activeSuggestionsOnly = true) {
 
-    elementTask.addEventListener('input', () => { renderSuggestions(elementTask, elementSuggestions); }); // !!! entryTaskId = null; 
-    elementTask.addEventListener('focus', () => { renderSuggestions(elementTask, elementSuggestions); });
+    elementTask.addEventListener('input', () => { renderSuggestions(elementTask, elementSuggestions, activeSuggestionsOnly); });
+    elementTask.addEventListener('focus', () => { renderSuggestions(elementTask, elementSuggestions, activeSuggestionsOnly); });
 
 
     elementTask.addEventListener('keydown', event => {
         if (event.key === 'Tab') {
-            const matches = filteredTasks(elementTask.value);
+            const matches = filteredTasks(elementTask.value, activeSuggestionsOnly);
             if (matches.length) {
                 event.preventDefault();
                 elementSuggestions.hidden = true;
@@ -2730,7 +2915,7 @@ function enableTaskEvents(elementTask, elementTaskDescription, elementCategory, 
             }
         }
         if (event.key === 'Enter') {
-            const matches = filteredTasks(elementTask.value);
+            const matches = filteredTasks(elementTask.value, activeSuggestionsOnly);
             if (matches.length) {
                 event.preventDefault();
                 elementTask.value = matches[0]?.code;
@@ -2742,7 +2927,6 @@ function enableTaskEvents(elementTask, elementTaskDescription, elementCategory, 
 
     elementSuggestions.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
-            console("Escape suggestions : close it, without modifying task");
             elementSuggestions.hidden = true;
             return;
         }
@@ -2929,7 +3113,7 @@ function renderTrack() {
    ============================================================ */
 
 
-enableTaskEvents(entryTask, entryDescription, entryCategory, entrySubcategory, taskSuggestions);
+enableTaskEvents(entryTask, taskSuggestions, entryDescription, entryCategory, entrySubcategory, !embedsArchivedSuggestion());
 
 
 function loadEntryFromTask(taskId) {
@@ -3212,7 +3396,7 @@ function renderAgendaSegment(session, start, end, range) {
     const top = ((clippedStart - viewStart) / total) * 100;
     const height = Math.max(.8, ((clippedEnd - clippedStart) / total) * 100);
 
-    const task = taskById(session.taskId);
+    const task = taskById(session.taskId, false);
     const category = categoryById(session.categoryId);
     const sub = subcategoryById(session.categoryId, session.subcategoryId);
 
@@ -3298,17 +3482,28 @@ function toInputDateTimeLocal(dateObj) {
 }
 
 function openSessionModal(sessionId = null, defaultStart = null, defaultEnd = null) {
-    const sessionModal = document.getElementById('sessionModal');
+    // Modal Frontend variables
     const editTask = document.getElementById('editTask');
     const editTaskDescription = document.getElementById('editDescription');
     const editSuggestions = document.getElementById('editSuggestions');
     const editCategory = document.getElementById('editCategory');
     const editSubcategory = document.getElementById('editSubcategory');
-    const editStart = document.getElementById('editStart');
-    const editEnd = document.getElementById('editEnd');
 
     if (!sessionModal) return;
 
+    // Modal Backend variables by default (adding new session)
+    let mTitle = t('modal.addSession');
+    let mSessionId = '';
+    let mTaskId = state.ui.lastTaskId || '';
+    let mDescription = '';
+    let mCategory = state.ui.lastCategoryId;
+    let mSubcategory = state.ui.lastSubcategoryId;
+    let startDate = defaultStart || new Date(Date.now() - 3600000);
+    let endDate = defaultEnd || new Date();
+    let disableDelete = true;
+    let activeSuggestionsOnly = !embedsArchivedSuggestion("create");
+
+    // Override : Editing session
     if (sessionId) {
         const session = state.sessions.find(s => s.id === sessionId);
         currentSession = runningSession();
@@ -3317,53 +3512,41 @@ function openSessionModal(sessionId = null, defaultStart = null, defaultEnd = nu
             alert(t('modal.editSessionDenied'));
             return;
         }
-    
-        document.getElementById('modalTitle').textContent = t('modal.editSession');
-        document.getElementById('editSessionId').value = session.id;
 
-        const task = typeof taskById === 'function' ? taskById(session.taskId) : null;
-        editTask.value = task?.code || '';
-
-        populateCategorySelect(editCategory, session.categoryId);
-        populateSubcategorySelect(editSubcategory, session.categoryId, session.subcategoryId);
-
-        editCategory.onchange = () => {
-            populateSubcategorySelect(editSubcategory, editCategory.value, editSubcategory.value);
-        };
-
-        const startDate = typeof fromISO === 'function' ? fromISO(session.startISO) : new Date(session.startISO);
-        const endDate = session.endISO ? (typeof fromISO === 'function' ? fromISO(session.endISO) : new Date(session.endISO)) : new Date();
-
-        editStart.value = toInputDateTimeLocal(startDate);
-        editEnd.value = toInputDateTimeLocal(endDate);
-        document.getElementById('editDescription').value = session.description || '';
-
-        document.getElementById('btnDeleteSession').style.display = 'block';
-    } else {
-        document.getElementById('modalTitle').textContent = t('modal.addSession');
-        document.getElementById('editSessionId').value = '';
-        document.getElementById('editTask').value = '';
-        document.getElementById('editDescription').value = '';
-
-        const startDate = defaultStart || new Date(Date.now() - 3600000);
-        const endDate = defaultEnd || new Date();
-
-        document.getElementById('editStart').value = toInputDateTimeLocal(startDate);
-        document.getElementById('editEnd').value = toInputDateTimeLocal(endDate);
-
-        populateCategorySelect(editCategory, state.ui.lastCategoryId);
-        populateSubcategorySelect(editSubcategory, editCategory.value, state.ui.lastSubcategoryId);
-
-        editCategory.onchange = () => {
-            populateSubcategorySelect(editSubcategory, editCategory.value, editSubcategory.value);
-        };
-
-        enableTaskEvents(editTask, editTaskDescription, editCategory, editSubcategory, editSuggestions);
-
-        document.getElementById('btnDeleteSession').style.display = 'none';
+        mTitle = t('modal.editSession');
+        if (session.id) mSessionId = session.id;
+        if (session.taskId) mTaskId = session.taskId;
+        if (session.description) mDescription = session.description;
+        if (session.categoryId) mCategory = session.categoryId;
+        if (session.subcategoryId) mSubcategory = session.subcategoryId;
+        if (session.startISO) startDate = fromISO(session.startISO);
+        if (session.endISO) endDate = fromISO(session.endISO);
+        disableDelete = false;
+        activeSuggestionsOnly = !embedsArchivedSuggestion("edit");;
+           
     }
 
-    sessionModal.showModal();
+    // Display values in modal
+    document.getElementById('modalTitle').textContent = mTitle;
+    document.getElementById('editSessionId').value = mSessionId;
+    editTask.value = taskById(mTaskId)?.code || '';
+    editTaskDescription.value = mDescription;
+    document.getElementById('editStart').value = toInputDateTimeLocal(startDate);
+    document.getElementById('editEnd').value = toInputDateTimeLocal(endDate);
+
+    populateCategorySelect(editCategory, state.ui.lastCategoryId);
+    populateSubcategorySelect(editSubcategory, editCategory.value, state.ui.lastSubcategoryId);
+
+    // Add events
+    editCategory.onchange = () => {
+        populateSubcategorySelect(editSubcategory, editCategory.value, editSubcategory.value);
+    };
+    enableTaskEvents(editTask, editSuggestions, editTaskDescription, editCategory, editSubcategory, activeSuggestionsOnly);
+
+    if (disableDelete) document.getElementById('btnDeleteSession').style.display = 'none';
+
+    // Show modal
+    document.getElementById('sessionModal').showModal();
 }
 
 function initSessionModalEvents() {
@@ -3474,7 +3657,7 @@ function renderReport() {
     let totalWeekMs = 0;
 
     weekSessions.forEach(session => {
-        const task = taskById(session.taskId);
+        const task = taskById(session.taskId, false);
         const category = categoryById(session.categoryId);
         const sub = subcategoryById(session.categoryId, session.subcategoryId);
 
@@ -3595,7 +3778,7 @@ function renderAnalytics() {
     let grandTotal1 = 0;
 
     filteredSessions.forEach(session => {
-        const task = taskById(session.taskId);
+        const task = taskById(session.taskId, false);
         const code = task?.code || t('analytics.noTask');
         const dur = sessionDuration(session);
 
@@ -3683,7 +3866,7 @@ function renderAnalyticsSubcategories(sessions) {
         .filter(s => s.categoryId === catId);
 
     catSessions.forEach(session => {
-        const task = taskById(session.taskId);
+        const task = taskById(session.taskId, false);
         const code = task?.code || t('analytics.noTask');
         const dur = sessionDuration(session);
 
@@ -3737,55 +3920,122 @@ analyticsCategorySelect.addEventListener('change', () => renderAnalyticsSubcateg
    SETTINGS: TASK & CATEGORIES MANAGEMENT
    ============================================================ */
 function renderTasksSettings() {
-    taskList.innerHTML = '';
+    
+    suggestionLevelSelect.value = state.ui.archiveSuggestionLevel;
+    taskListDiv.innerHTML = '';
+    taskarchiveListDiv.innerHTML = '';
     if (!state.tasks.length) {
-        taskList.innerHTML = `<div class="empty">${t('settings.noTask')}</div>`;
+        setTaskListDivEmpty(taskListDiv);
+        setTaskListDivEmpty(taskarchiveListDiv);
         return;
     }
 
-    state.tasks.forEach(task => {
-        const row = document.createElement('div');
-        row.className = 'item';
+    [archivedTasks, activeTasks] = partitionTaskList(state.tasks, t => t.archived || false);
 
-        const code = document.createElement('span');
-        code.className = 'code'; code.textContent = task.code;
+    if (!activeTasks.length) {
+        setTaskListDivEmpty(taskListDiv);
+    } else {
+        activeTasks.forEach(task => {
+            const row = renderTaskRow(task);
+            taskListDiv.appendChild(row);
+        });    
+    }
 
-        const desc = document.createElement('input');
-        desc.type = 'text'; desc.value = task.description || ''; desc.placeholder = t('modal.ticketDescPlaceholder');
-        desc.addEventListener('change', () => { task.description = desc.value.trim(); saveState(); renderTrack(); });
-
-        const actions = document.createElement('div');
-        actions.className = 'controls';
-
-        const del = document.createElement('button');
-        del.className = 'btn danger'; del.textContent = t('btn.delete');
-        del.onclick = () => {
-            if (!confirm(`${t('btn.delete')} ${task.code} ?`)) return;
-            if (runningSession()?.taskId === task.id) stopActivity();
-            state.tasks = state.tasks.filter(t => t.id !== task.id);
-            saveState();
-            renderTasksSettings(); renderTrack();
-        };
-
-        const dup = document.createElement('button');
-        dup.className = 'btn'; 
-        dup.textContent = t('btn.duplicate');
-        dup.onclick = () => {
-            let n = 2, newCode = task.code;
-            while (state.tasks.some(t => t.code.toLowerCase() === newCode.toLowerCase())) {
-                newCode = `${task.code}-${n++}`;
-            }
-            state.tasks.push({ id: uid('T'), code: newCode, description: task.description || '' });
-            saveState();
-            renderTasksSettings(); renderTrack();
-        };
-
-        actions.append(dup, del);
-        row.append(code, desc, actions);
-        taskList.appendChild(row);
-    });
+    if (!archivedTasks.length) {
+        setTaskListDivEmpty(taskarchiveListDiv);
+    } else {
+        archivedTasks.forEach(task => {
+            const row = renderTaskRow(task, true);
+            taskarchiveListDiv.appendChild(row);
+        });    
+    }
 }
 
+function setTaskListDivEmpty(div) {
+    div.innerHTML = `<div class="empty">${t('settings.noTask')}</div>`;
+}
+
+function renderTaskRow(task, archived = false) {
+
+    // Main line structure / Elements
+    const row = document.createElement('div');
+    row.className = 'item';
+
+    const code = document.createElement('span');
+    code.className = 'code'; code.textContent = task.code;
+
+    const desc = document.createElement('input');
+    desc.type = 'text'; desc.value = task.description || ''; desc.placeholder = t('modal.ticketDescPlaceholder');
+    desc.addEventListener('change', () => { task.description = desc.value.trim(); saveState(); renderTrack(); });
+
+    const actions = document.createElement('div');
+    actions.className = 'controls';
+    
+    // Create controls (Archive button, Restore button, Delete button, Duplicate button)
+    const arc = document.createElement('button');
+    arc.className = 'btn'; 
+    arc.textContent = t('btn.archive');
+    arc.onclick = () => {
+        if (!confirm(`${t('btn.archive')} ${task.code} ?`)) return;
+        task.archived = true;
+        saveState();
+        renderTasksSettings(); 
+        renderTrack();
+    };
+
+    const rest = document.createElement('button');
+    rest.className = 'btn'; 
+    rest.textContent = t('btn.restore');
+    rest.onclick = () => {
+        if (!confirm(`${t('btn.restore')} ${task.code} ?`)) return;
+        task.archived = false;
+        saveState();
+        renderTasksSettings(); 
+        renderTrack();
+    };
+
+    const del = document.createElement('button');
+    del.className = 'btn danger'; 
+    del.textContent = t('btn.delete');
+    del.onclick = () => {
+        if (!confirm(`${t('btn.delete')} ${task.code} ?`)) return;
+        if (runningSession()?.taskId === task.id) stopActivity();
+        state.tasks = state.tasks.filter(t => t.id !== task.id);
+        saveState();
+        renderTasksSettings(); 
+        renderTrack();
+    };
+
+    const dup = document.createElement('button');
+    dup.className = 'btn'; 
+    dup.textContent = t('btn.duplicate');
+    dup.onclick = () => {
+        let n = 2, newCode = task.code;
+        while (state.tasks.some(t => t.code.toLowerCase() === newCode.toLowerCase())) {
+            newCode = `${task.code}-${n++}`;
+        }
+        state.tasks.push({ id: uid('T'), code: newCode, description: task.description || '' });
+        saveState();
+        renderTasksSettings();
+        renderTrack();
+    };
+
+    // Depending of tasks statuses, append relevant controls
+    if (!task.archived) {
+        actions.append(dup, arc, del);            
+    } else {
+        actions.append(rest, del);
+    }
+    row.append(code, desc, actions);
+
+    // result
+    return row;
+}
+
+suggestionLevelSelect.addEventListener('change', event => {
+    state.ui.archiveSuggestionLevel = event.target.value;
+    saveState();
+});
 
 document.getElementById('addTaskBtn').onclick = () => {
     newTaskCode.value = ''; newTaskDescription.value = '';
@@ -3847,7 +4097,9 @@ function renderCategoryItem(category) {
             alert(t('settings.doubleSubcategory')); return;
         }
         category.subcategories.push({ id: uid('SC'), name: subName });
-        saveState(); renderCategoriesSettings(); renderTrack();
+        saveState(); 
+        renderCategoriesSettings(); 
+        renderTrack();
     };
 
     /* Hidden Native HTML Color Picker Input */
@@ -3884,7 +4136,9 @@ function renderCategoryItem(category) {
         category.color = val;
         dot.style.background = val;
         if (val.startsWith('#') && val.length === 7) colorPicker.value = val;
-        saveState(); renderCategoriesSettings(); renderWeek();
+        saveState(); 
+        renderCategoriesSettings(); 
+        renderWeek();
     });
 
     /* 4. Rename Button */
@@ -3895,7 +4149,10 @@ function renderCategoryItem(category) {
         const newName = prompt(t('common.newName'), category.name)?.trim();
         if (!newName) return;
         category.name = newName;
-        saveState(); renderCategoriesSettings(); renderTrack(); renderWeek();
+        saveState(); 
+        renderCategoriesSettings(); 
+        renderTrack(); 
+        renderWeek();
     };
 
     /* 5. Delete Button */
@@ -3906,7 +4163,9 @@ function renderCategoryItem(category) {
         const confirmMsg = `${t('settings.delBtn')} ${t('common.category')} ${category.name}?`;
         if (!confirm(confirmMsg)) return;
         state.categories = state.categories.filter(c => c.id !== category.id);
-        saveState(); renderCategoriesSettings(); renderTrack();
+        saveState(); 
+        renderCategoriesSettings(); 
+        renderTrack();
     };
 
     controls.append(addSub, pickerBtn, colorPicker, colorInput, rename, del);
@@ -3926,7 +4185,9 @@ function renderCategoryItem(category) {
             const remove = document.createElement('button'); remove.textContent = '×';
             remove.onclick = () => {
                 category.subcategories = category.subcategories.filter(s => s.id !== sub.id);
-                saveState(); renderCategoriesSettings(); renderTrack();
+                saveState(); 
+                renderCategoriesSettings(); 
+                renderTrack();
             };
             chip.append(label, remove);
             subList.appendChild(chip);
@@ -3953,7 +4214,8 @@ document.getElementById('categoryDialogSave').onclick = () => {
     state.categories.push({ id: uid('C'), name, color: '#5aa6ff', subcategories: [] });
     saveState();
     categoryDialog.close();
-    renderCategoriesSettings(); renderTrack();
+    renderCategoriesSettings(); 
+    renderTrack();
 };
 
 
