@@ -1,30 +1,44 @@
-# 🕒 TimeFinder
+# 🕒 OwnTimeFinder - call me OTF
 
 A simple, standalone time-tracking tool to keep track of your work, your way.
 
-## 🤔 Why TimeFinder?
+## 🤔 Why choose me?
 
-TimeFinder is designed to make time tracking simple, fast, and flexible.
+I'm designed to make time tracking simple, fast, personalized, and flexible—all while remaining aligned with your company’s strategy.
+
+### My Concept
 
 - **Standalone and local** — No external dependencies, no network requests. Your data stays in your browser.
-- **Privacy first** — No personal data is collected or sent anywhere. The only external identifiers you may use are Jira task IDs.
-- **Instant response** — No cloud requests, no waiting. Just start tracking and focus on your work.
-- **Your data, your choice** — Data is stored in your browser's LocalStorage. You can import or export your complete data (settings + records), or export and import records only.
-- **Simple workflow** — Select your task, category, and subcategory if needed, click Start, and get back to work.
-- **Flexible time tracking** — Add or modify records manually whenever you need to correct or complete your tracking.
-- **Jira-friendly reporting** — Quickly copy and paste your time records into Jira, keeping your reporting aligned with your company's workflow.
-- **Your own record of activity** — Keep a personal record of your work, independently of the information required by your official reporting tools.
-- **Personal analytics** — Get a simple overview of your activity based on your own categories and subcategories.
+- **Privacy-first** — No personal data is collected or shared with third parties.
+- **Data ownership** — Your data is stored in your browser’s *LocalStorage*. You can import or export your entire dataset (settings and records), or choose to export/import only your time entries.
+- **Immediate responsiveness** — Everything is processed locally in your browser; there’s no waiting for cloud-based requests. Simply start tracking and focus on your work.
+- **Streamlined workflow** — Select your task and category (with the option to add a sub-category), click "Start," and get on with your work.
+- **Flexible tracking** — Manually add or edit entries whenever you need to correct or complete your records.
+- **Jira compatibility** — Easily copy and paste your time logs into Jira. Or, when supported by your Jira environment, automate the process through CSV import or API integration.
+- **Customized analytics** — Get a clear overview of your activity, organized according to your own categories and sub-categories.
+
+---
+
+### Mutual commitments between employees and the company
+
+- **Compliance** — Create accurate time logs that align with your company’s requirements and reporting processes.
+- **A human-centred, respectful approach** — Keep a record of your original time entries. This tool does not require you to conceal the actual time spent on your professional tasks.
+
+---
 
 > ⚠️ **Important: Protect your data!**
 >
-> TimeFinder stores its data in your browser's LocalStorage. If your browser or your system automatically clears website data, your records may be lost.
+> OTF stores its data in your browser's LocalStorage. If your browser or your system automatically clears website data, your records may be lost.
 >
 > Export your data regularly, especially during your working day, if your browser is configured to clear its data automatically.
 >
 > If you cannot rely on persistent browser storage, using TimeFinder may become inconvenient.
 
-## 🚀 Quick Start
+---
+
+## My documentation
+
+### 🚀 Quick Start
 
 Before getting started, you can choose your preferred language and theme from the top menu.
 
@@ -34,7 +48,9 @@ Before getting started, you can choose your preferred language and theme from th
 
 That's it! Keep your workflow simple and focus on your work.
 
-## ⏱️ Tracking View
+---
+
+### ⏱️ Tracking View
 
 The Tracking view is where you spend most of your time.
 
@@ -46,7 +62,9 @@ The Tracking view is where you spend most of your time.
 
 To back up everything, including your settings and records, use the import/export features in the Settings view.
 
-## 📅 Agenda View
+---
+
+### 📅 Agenda View
 
 Get a weekly overview of your activity.
 
@@ -55,7 +73,9 @@ Get a weekly overview of your activity.
 
 This view helps you keep your time records accurate and complete.
 
-## 📋 Report View
+---
+
+### 📋 Report View
 
 Prepare your time records for your official reporting tool.
 
@@ -65,7 +85,9 @@ Prepare your time records for your official reporting tool.
 
 The goal is to reduce repetitive work and make reporting less tedious.
 
-## 📊 Analytics View
+---
+
+### 📊 Analytics View
 
 This is intentionally a simple analytics view. Its usefulness depends largely on how you configure your categories and subcategories.
 
@@ -80,7 +102,9 @@ Your personal analytics are a tool for self-improvement, not a performance score
 
 Use them to understand your work, identify opportunities, and make better decisions.
 
-## ⚙️ Settings View
+---
+
+### ⚙️ Settings View
 
 Settings allow you to adapt TimeFinder to your own workflow.
 
@@ -92,20 +116,49 @@ You can also manage your task IDs and adjust your preferences.
 
 Use the import/export features to preserve your settings and records, especially if your browser may clear its stored data.
 
-## 💾 Data & Privacy
+---
 
-TimeFinder is designed to work locally in your browser.
+
+## 🤝 My friend
+*Enjoy working with me, and let my friend take care of your Jira worklogs!*
+
+For Jira users, the only annoying thing left after saving time every day is spending 20 minutes each week copying and pasting their reports into Tempo or Jira worklogs. A handy script lets you call the Jira API to import the CSV file generated in the Report view directly into Jira.
+For windows user, use `ms-jira-worklogs-import`.
+
+This script is deliberately simple. For each record in your export, the script will:
+- call the Jira API cloud endpoint `$JiraBaseUrl/rest/api/3/issue/$IssueKey/worklog?adjustEstimate=leave`, where **`$IssueKey`** is the Jira issue key.
+- return status OK or ERROR for each worklog.
+
+For Windows users, follow this workflow :
+> - Open a **Windows Shell console**
+> - **Navigate to your import folder** (containing your CSV and PS1 files). Example : `cd $HOME\JiraImport\` 
+> - **Launch import command**. Example `.\ms-jira-worklogs-import.ps1 -CsvPath .\worklogs.csv`
+> - **Check the results** in the log and in Jira.
+
+A Python version for macOS and Linux is planned.
+
+---
+
+## More about me
+
+### 💾 Data & Privacy
+
+Own Time Finder is designed to work locally in your browser.
 
 - Your records and settings are stored in LocalStorage.
 - No external service is required for its normal operation.
 - Your data remains under your control, but it is your responsibility to back it up.
 
-Remember that clearing your browser's stored website data may permanently delete your TimeFinder records if you have not exported them.  
+Remember that clearing your browser's stored website data may permanently delete your OTF records if you have not exported them.  
 
-And if you want to check it before downloading it,... Let's go : [TimeFinder Demo](https://hervep530.github.io/time-finder/)
+And if you want to check it before downloading it,... Let's go : [Own Time Finder Demo](https://hervep530.github.io/ownn-time-finder/)
 
-## 📜 License
+---
 
-TimeFinder is distributed under the MIT License.
+### 📜 License
+
+Own Time Finder is distributed under the MIT License.
 
 See the [LICENSE](LICENSE) file for details.
+
+---
