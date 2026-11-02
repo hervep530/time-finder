@@ -2,7 +2,7 @@
 <html lang="en">
 
 <!--
-  TimeFinder
+  Own Time Finder
   Copyright (c) 2026 hervep530
 
   Licensed under the MIT License.
@@ -964,14 +964,14 @@ dialog::backdrop {
 }
     </style>
 
-<title>TimeFinder v0.6</title>
+<title>Own Time Finder v0.6</title>
 </head>
 
 <body>
 
     <header>
         <div class="bar">
-            <div class="title">⏱️ TimeFinder</div>
+            <div class="title">⏱️ Own Time Finder</div>
             <span class="pill" id="nowPill"></span>
             <div class="spacer"></div>
 
@@ -1397,16 +1397,14 @@ dialog::backdrop {
     <script>
 
 /* ============================================================
-   TIMEFINDER V0.4 - GLOBAL & I18N
+   OWN TIME FINDER V0.6 - GLOBAL & I18N
    ============================================================ */
-//const STORAGE_KEY = 'trackTimeState.v0.4';
-//const OLD_STORAGE_KEYS = ['timeFinderState.v0.3', 'timeTrackerState.v2', 'timeTrackerState.v1'];  
-const productId = "timeFinder";
+const productId = "ownTimeFinder";
 const version = "0.6"; 
 const STORAGE_KEY = `${productId}State.v${version}`;
 const BREAKING_CHANGE_V06_KEYS = ['timeFinderState.v0.5', 'timeFinderState.v0.4', 'timeFinderState.v0.3',
                                   'trackTimeState.v0.4', 'timeTrackerState.v2', 'timeTrackerState.v1'];
-const OLD_STORAGE_KEYS = [...BREAKING_CHANGE_V06_KEYS];
+const OLD_STORAGE_KEYS = ['timeFinderState.v0.6', ...BREAKING_CHANGE_V06_KEYS];
 const MIN_SESSION_DURATION_MS = 2 * 60 * 1000;
 
 const offsetHours = -new Date().getTimezoneOffset() / 60;
@@ -1506,43 +1504,6 @@ const resumeDialog = document.getElementById('resumeDialog');
 const resumeBody = document.getElementById('resumeBody');
 const resumeYes = document.getElementById('resumeYes');
 const resumeNo = document.getElementById('resumeNo');
-
-/*
-filter(t => archived ? t.archived : !t.archived)
-"btn.archive": "Archiver",
-"btn.restore": "Restaurer",
-
-
-
-"btn.archive": "Archivieren",
-"btn.restore": "Wiederherstellen",
-
-
-
-"btn.archive": "Archivar",
-"btn.restore": "Restaurar",
-
-
-
-"btn.archive": "Arquivar",
-"btn.restore": "Restaurar",
-
-
-"settings.taskArchiveHint": "List of tickets you are not working on anymore.",
-"settings.archivedTasks": "Archived tasks",
-
-"settings.taskArchiveHint": "Liste des tickets sur lesquels vous ne travaillez plus.",
-"settings.archivedTasks": "Tâches archivées",
-
-"settings.taskArchiveHint": "Liste der Tickets, an denen du nicht mehr arbeitest.",
-"settings.archivedTasks": "Archivierte Aufgaben",
-
-"settings.taskArchiveHint": "Lista de tickets en los que ya no estás trabajando.",
-"settings.archivedTasks": "Tareas archivadas",
-
-"settings.taskArchiveHint": "Lista de chamadas em que já não está a trabalhar.",
-"settings.archivedTasks": "Chamados arquivados",
-*/
 
 
 translations.en = {
@@ -3186,7 +3147,7 @@ document.getElementById('btnExportRangeJson').onclick = () => {
 
     const startVal = startInput.value;
     const endVal = endInput.value;
-    download(`timefinder-sessions-${startVal}_to_${endVal}.json`, JSON.stringify(exportData, null, 2), 'application/json');
+    download(`otf-sessions-${startVal}_to_${endVal}.json`, JSON.stringify(exportData, null, 2), 'application/json');
 };
 
 document.getElementById('btnExportRangeCsv').onclick = () => {
@@ -3224,7 +3185,7 @@ document.getElementById('btnExportRangeCsv').onclick = () => {
     const csv = rows.map(r => r.map(csvEscape).join(';')).join('\n');
     const startVal = startInput.value;
     const endVal = endInput.value;
-    download(`timefinder-sessions-${startVal}_to_${endVal}.csv`, csv, 'text/csv;charset=utf-8');
+    download(`otf-sessions-${startVal}_to_${endVal}.csv`, csv, 'text/csv;charset=utf-8');
 };
 
 document.getElementById('btnImportSessions').addEventListener('click', () => {
@@ -3543,7 +3504,7 @@ function openSessionModal(sessionId = null, defaultStart = null, defaultEnd = nu
     };
     enableTaskEvents(editTask, editSuggestions, editTaskDescription, editCategory, editSubcategory, activeSuggestionsOnly);
 
-    if (disableDelete) document.getElementById('btnDeleteSession').style.display = 'none';
+    document.getElementById('btnDeleteSession').style.display = disableDelete ? 'none' : 'block';
 
     // Show modal
     document.getElementById('sessionModal').showModal();
@@ -4234,7 +4195,7 @@ function download(filename, content, type = 'application/octet-stream') {
 function exportJson() {
     const snapshot = JSON.stringify(state, null, 2);
     const date = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-    download(`timefinder-v0.4-${date}.json`, snapshot, 'application/json');
+    download(`otf-v0.6-${date}.json`, snapshot, 'application/json');
 }
 
 document.getElementById('exportJsonBtn').onclick = exportJson;
@@ -4263,7 +4224,7 @@ function exportCsv() {
 
     const csv = rows.map(r => r.map(csvEscape).join(';')).join('\n');
     const date = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-    download(`timefinder-sessions-${date}.csv`, csv, 'text/csv;charset=utf-8');
+    download(`otf-sessions-${date}.csv`, csv, 'text/csv;charset=utf-8');
 }
 
 document.getElementById('exportCsvBtn').onclick = exportCsv;
